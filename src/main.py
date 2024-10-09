@@ -123,10 +123,13 @@ def animate(i, robot, estimated_robot, enc_robot, particles, estimated_map, shap
   end_timer = timer()
 
   # maybe try to scatter particles around current converge to help convergence at the end
-  # if i % 120 == 0 and i > 0:
-  #   n = int(particles.M * 0.4)
-  #   choice = np.random.choice(particles.M, n)
-  #   particles.I_xis[choice, :2] = estimated_robot.I_xi[:2] + np.random.uniform(-0.3, 0.3, (n, 2))
+  if i % 60 == 0 and i > 0:
+    n = int(particles.M * 0.6)
+    choice = np.random.choice(particles.M, n)
+    offset = 0.75
+    if i > 400:
+      offset = 0.35
+    particles.I_xis[choice, :2] = estimated_robot.I_xi[:2] + np.random.uniform(-offset, offset, (n, 2))
 
   print("Whole loop", i, "lasted", end_timer - start)
 
@@ -145,10 +148,9 @@ def simulate():
   robot = Robot()
 
   ## PARTICLES INITIALIZATION
-  M = 700
+  M = 400
   particles_I_xis = np.random.uniform(0.05, 5.95, (M, 3))
   particles_I_xis[:, 2] = normalize_angle(particles_I_xis[:, 2])
-  # particles_I_xis[:, 2] = robot.I_xi[2]
   particles = Particles(particles_I_xis)
   
   particles.update_colors(full_known_lines_env)
