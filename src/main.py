@@ -71,6 +71,14 @@ def animate(i, robot, estimated_robot, enc_robot, particles, estimated_map, shap
 
   shapes[0].set_data(np.vectorize(log_odds_to_prob)(estimated_map.log_odds_probabilities))
 
+  if i % 60 == 0 and i > 0:
+    n = int(particles.M * 0.6)
+    choice = np.random.choice(particles.M, n)
+    offset = 0.75
+    if i > 400:
+      offset = 0.35
+    particles.I_xis[choice, :2] = estimated_robot.I_xi[:2] + np.random.uniform(-offset, offset, (n, 2))
+
 def simulate():
   fig, known_ax, unexplored_ax = init_plot_2D()
   num_frames = 1500
@@ -86,7 +94,7 @@ def simulate():
   robot = Robot()
 
   ## PARTICLES INITIALIZATION
-  M = 700
+  M = 400
   particles_I_xis = np.random.uniform(0.05, 5.95, (M, 3))
   particles_I_xis[:, 2] = normalize_angle(particles_I_xis[:, 2])
   particles = Particles(particles_I_xis)
