@@ -173,7 +173,6 @@ def simulate():
 
   mean = np.mean(particles.I_xis, axis=0)
   mean[2] = normalize_angle(mean[2])
-  mean[2] = robot.I_xi[2] # we know orientation
 
   estimated_robot = Robot(mean)
   enc_robot = Robot(robot.I_xi.copy())
