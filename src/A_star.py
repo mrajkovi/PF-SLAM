@@ -54,7 +54,7 @@ def A_star(start, goal, map):
     closed_set.append(current_cell[1])
 
     eligible_neighbours = find_cell_neighbours(current_cell[1], map)
-    if current_cell[1] == goal or goal in eligible_neighbours:
+    if current_cell[1] == goal:
       path = []
       reconstruct_path(parents, start, current_cell[1], path)
       path.reverse()

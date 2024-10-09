@@ -3,7 +3,6 @@ from shared import R, normalize_angle, distance_between_points, bresenham, prob_
 from settings import sensor_properties, map_settings
 from world import unknown_world
 
-debug = False
 class Map:
   __slots__ = [
     "cell_width", 
@@ -28,8 +27,6 @@ class Map:
     self.l_occupied = map_settings["l_occupied"]
     self.l_0 = map_settings["l_0"]
     self.log_odds_probabilities = np.zeros((self.num_of_rows, self.num_of_columns), dtype=float)
-    # with these thresholds it is needed two times to declare cell opposite from current state
-    # if measurements are giving the opposite scores
     self.threshold_occupied = prob_to_log_odds(map_settings["threshold_occupied"])
     self.threshold_free = prob_to_log_odds(map_settings["threshold_free"])
     self.occupied_cells = []
@@ -73,7 +70,6 @@ class Map:
     return closest_cell, min_distance
   
   def occupancy_grid_mapping(self, particle_I_xi, robot):
-    global debug
     for sensor_index, z_t_k in enumerate(robot.z_t):
       measurement_startpoint = np.copy(particle_I_xi[:2]) + \
         R(particle_I_xi[2])[:2, :2].T @ robot.sensors[sensor_index].position
@@ -87,8 +83,6 @@ class Map:
           np.sin(particle_I_xi[2] + robot.sensors[sensor_index].beam_orientation + subbeam_orientation)], 
           dtype=float
         )
-        # What if measurements are outside? No problem because it will try to get every other cell
-        # inside map
         measurement_endpoint_cell = self.coordinates_2_indices(*measurement_endpoint)
         perception_beam_cells = bresenham(*measurement_startpoint_cell, *measurement_endpoint_cell)
         for cell in perception_beam_cells:
@@ -99,12 +93,6 @@ class Map:
       for cell_row, cell_column in perception_cells:
         if (cell_row, cell_column) not in self.known_cells and self.inside_map(cell_row, cell_column):
           inverse_sensor_model = self.inverse_sensor_model((cell_row, cell_column), particle_I_xi, robot)
-          # if (cell_row, cell_column) in measurement_endpoints_cells and greater_than(sensor_properties["z_max"] - z_t_k, 0.05):
-            # inverse_sensor_model = self.l_occupied
-          if debug and distance_between_points(robot.I_xi[:2], particle_I_xi[:2]) < 0.5:
-            print("Cell in particles's perception:", (cell_row, cell_column))
-            print("Inverse sensor model", inverse_sensor_model)
-            print("Distance from origin", self.distance_between_cells((cell_row, cell_column), self.coordinates_2_indices(*particle_I_xi[:2])))
           self.log_odds_probabilities[cell_row, cell_column] += inverse_sensor_model - self.l_0
           self.log_odds_probabilities[cell_row, cell_column] = max(self.threshold_free, min(self.log_odds_probabilities[cell_row, cell_column], self.threshold_occupied))
           if greater_or_equal_than(self.log_odds_probabilities[cell_row, cell_column], self.l_occupied) and not (cell_row, cell_column) in self.occupied_cells:
@@ -126,7 +114,7 @@ class Map:
       return self.l_occupied
     if less_or_equal_than(r, robot.z_t[k]):
       return self.l_free
-    # this is rare corner case when precision in decimals are making decisions
+    # this is rare corner case when precision in decimals are making difference
     return self.l_0
   
   def synchronize_map(self):

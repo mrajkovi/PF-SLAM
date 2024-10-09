@@ -3,8 +3,6 @@ from shared import normalize_angle, obstacle_close
 from A_star import A_star
 from map import Map
 
-debug = False
-
 def prepare_map(estimated_map):
   new_map = Map()
   new_map.log_odds_probabilities[:, :] = new_map.l_free
@@ -50,9 +48,9 @@ target_cells = [(30, 50), (49, 52), (50, 30), (51, 15), (12, 10), (8, 50), (30, 
 going_forward = True
 inputs = []
 def path_planner(z_t, estimated_state, estimated_map):
-  global target_cells, going_forward, inputs, debug
+  global target_cells, going_forward, inputs
   if len(target_cells) == 0 and len(inputs) == 0:
-    # we have traveled through all points set
+    # we have traveled through all points that were set
     exit()
   if going_forward and obstacle_close(z_t, distance=0.75):
     # obstacle is close so we need to recalculate path
@@ -73,9 +71,6 @@ def path_planner(z_t, estimated_state, estimated_map):
   map_for_navigation = prepare_map(estimated_map)
   path = A_star(start_cell, target_cell, map_for_navigation)
   
-  if debug:
-    print("Calculated path:", path)
-    print("Start cell and target cell:", start_cell, target_cell)
   estimated_orientation = estimated_state[2]
   target_cell_visited = False
   pairs = []
