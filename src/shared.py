@@ -65,10 +65,6 @@ def bresenham(row1, column1, row2, column2):
   y0 = -row1
   x1 = column2
   y1 = -row2
-  """
-  Bresenham's line algorithm to get cells between two points in a grid.
-  Returns a list of cells that are traversed by a ray from (x0, y0) to (x1, y1).
-  """
   cells = []
   dx = abs(x1 - x0)
   dy = abs(y1 - y0)
