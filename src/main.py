@@ -4,6 +4,7 @@ from matplotlib.patches import Wedge
 from matplotlib.collections import LineCollection
 import matplotlib.colors as mcolors
 from timeit import default_timer as timer
+import os
 
 import colors
 from shared import init_plot_2D, update_wedge, normalize_angle, log_odds_to_prob, distance_between_points, less_than, print_map
@@ -225,7 +226,7 @@ def simulate():
     init_func=lambda: None
   )
   
-  ani.save('C:\\Users\\MainMPC\\Documents\Fakultet\\simulation.gif', writer='imagemagick', fps=fps)
+  ani.save(os.path.dirname(os.path.abspath(__file__)) + "./../simulation.gif", writer='imagemagick', fps=fps)
 
 if __name__ == "__main__":
   np.random.seed(110)
